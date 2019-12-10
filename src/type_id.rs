@@ -22,7 +22,7 @@ use crate::{
 	IntoCompact, MetaType, Metadata, Registry,
 };
 use derive_more::From;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 /// Implementors return their meta type identifiers.
 pub trait HasTypeId {
@@ -138,7 +138,7 @@ impl IntoCompact for TypeId {
 }
 
 /// Identifies a primitive Rust type.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "lowercase")]
 pub enum TypeIdPrimitive {
 	/// `bool` type

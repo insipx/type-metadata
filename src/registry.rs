@@ -38,7 +38,8 @@ use crate::{
 	meta_type::MetaType,
 	TypeDef, TypeId,
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize, de::{self, Deserializer, Visitor, MapAccess}};
+use std::fmt;
 
 /// Compacts the implementor using a registry.
 pub trait IntoCompact {
@@ -86,7 +87,7 @@ pub struct Registry {
 	type_table: Interner<AnyTypeId>,
 	/// The database where registered types actually reside.
 	///
-	/// This is going to be serialized upon serlialization.
+	/// This is going to be serialized upon serialization.
 	#[serde(serialize_with = "serialize_registry_types")]
 	types: BTreeMap<UntrackedSymbol<core::any::TypeId>, TypeIdDef>,
 }
@@ -102,6 +103,59 @@ where
 {
 	let types = types.values().collect::<Vec<_>>();
 	types.serialize(serializer)
+}
+
+impl<'de> Deserialize<'de> for Registry {
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where
+		D: Deserializer<'de>,
+	{
+		#[derive(Deserialize)]
+		#[serde(field_identifier, rename_all = "lowercase")]
+		enum Field { Strings, Types }
+
+		struct RegistryVisitor;
+
+		impl<'de> Visitor<'de> for RegistryVisitor {
+			type Value = Registry;
+
+			fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+				formatter.write_str("struct Registry")
+			}
+
+			fn visit_map<V>(self, mut map: V)  -> Result<Self::Value, V::Error>
+			where
+				V: MapAccess<'de>
+			{
+				let mut strings = None;
+				let mut types = None;
+				while let Some(key) = map.next_key()? {
+					match key {
+						Field::Strings => {
+							if strings.is_some() {
+								return Err(de::Error::duplicate_field("strings"))
+							}
+							strings = Some(map.next_value()?);
+						}
+						Field::Types => {
+							if types.is_some() {
+								return Err(de::Error::duplicate_field("types"))
+							}
+							types = Some(map.next_value()?);
+						}
+					}
+				}
+
+				// let strings: Interner<&'static str> = strings.ok_or_else(|| de::Error::missing_field("strings"))?;
+				let types: serde_json::Value = types.ok_or_else(|| de::Error::missing_field("types"))?;
+				println!("STRINGS: {:?}", strings);
+				println!("TYPES: {:?}", types);
+				Ok(Registry::default())
+			}
+		}
+		const FIELDS: &[&str] = &["strings", "types"];
+		deserializer.deserialize_struct("Registry", FIELDS, RegistryVisitor)
+	}
 }
 
 impl Default for Registry {

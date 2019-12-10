@@ -149,3 +149,141 @@ fn struct_with_generics() {
 		TypeDefStruct::new(vec![NamedField::new("data", <Box<MyStruct<bool>>>::meta_type()),]).into(),
 	);
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use serde_json::json;
+	#[test]
+	fn remove_these_tests() {
+
+		// #[derive(Metadata)]
+		// #[allow(dead_code)]
+		// pub struct TestType {
+		// 	foo: u8,
+		// 	name: String,
+		// }
+
+		// #[derive(Metadata)]
+		// #[allow(dead_code)]
+		// pub struct TestType2 {
+		// 	super_simple_type: u8,
+		// 	some_kind_of_name: String,
+		// 	first_test_struct: TestType
+		// }
+
+		let to_serialize = r#"
+{
+    "strings": [
+        "TestType2",
+        "desub_core",
+        "decoder",
+        "tests",
+        "super_simple_type",
+        "some_kind_of_name",
+        "vec",
+        "Vec",
+        "elems",
+        "first_test_struct",
+        "TestType",
+        "foo",
+        "name"
+    ],
+    "types": [
+        {
+            "id": {
+                "custom.name": 1,
+                "custom.namespace": [
+                    2,
+                    3,
+                    4
+                ],
+                "custom.params": []
+            },
+            "def": {
+                "struct.fields": [
+                    {
+                        "name": 5,
+                        "type": 2
+                    },
+                    {
+                        "name": 6,
+                        "type": 3
+                    },
+                    {
+                        "name": 10,
+                        "type": 6
+                    }
+                ]
+            }
+        },
+        {
+            "id": "u8",
+            "def": "builtin"
+        },
+        {
+            "id": "str",
+            "def": {
+                "struct.fields": [
+                    {
+                        "name": 7,
+                        "type": 4
+                    }
+                ]
+            }
+        },
+        {
+            "id": {
+                "custom.name": 8,
+                "custom.namespace": [],
+                "custom.params": [
+                    2
+                ]
+            },
+            "def": {
+                "struct.fields": [
+                    {
+                        "name": 9,
+                        "type": 5
+                    }
+                ]
+            }
+        },
+        {
+            "id": {
+                "slice.type": 2
+            },
+            "def": "builtin"
+        },
+        {
+            "id": {
+                "custom.name": 11,
+                "custom.namespace": [
+                    2,
+                    3,
+                    4
+                ],
+                "custom.params": []
+            },
+            "def": {
+                "struct.fields": [
+                    {
+                        "name": 12,
+                        "type": 2
+                    },
+                    {
+                        "name": 13,
+                        "type": 3
+                    }
+                ]
+            }
+        }
+    ]
+}"#;
+
+		// let to_serialize = serde_json::to_string_pretty(&to_serialize).expect("To String");
+		// println!("pretty: {}", to_serialize);
+		let registry: Registry = serde_json::from_str(&to_serialize).unwrap();
+		println!("{:?}", registry);
+	}
+}
