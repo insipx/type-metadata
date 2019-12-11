@@ -21,7 +21,7 @@ use crate::{
 	IntoCompact, MetaType, Metadata, Registry,
 };
 use derive_more::From;
-use serde::{Serialize, de::{self, Deserialize, Deserializer, Visitor}};
+use serde::{Serialize, Deserialize};
 
 /// Types implementing this trait can communicate their type structure.
 ///
@@ -85,10 +85,11 @@ impl IntoCompact for TypeDef {
 ///     friends: Vec<Person>,
 /// }
 /// ```
-#[derive(PartialEq, Eq, Debug, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
+#[serde(bound(serialize = "F::TypeId: Serialize"))]
 pub struct TypeDefStruct<F: Form = MetaForm> {
 	/// The named fields of the struct.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
 	fields: Vec<NamedField<F>>,
 }
 
@@ -121,11 +122,11 @@ impl TypeDefStruct {
 /// A named field.
 ///
 /// This can be a named field of a struct type or a struct variant.
-#[derive(PartialEq, Eq, Debug, Serialize)]
+#[derive(PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(bound(serialize = "F::TypeId: Serialize"))]
 pub struct NamedField<F: Form = MetaForm> {
 	/// The name of the field.
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::String: Deserialize<'de>"))]
 	name: F::String,
 	/// The type of the field.
 	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
