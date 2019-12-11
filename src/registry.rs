@@ -107,7 +107,7 @@ where
 
 struct RegistryVisitor;
 
-impl<'de> Visitor<'de> for RegistryVisitor {
+impl<'de: 'static> Visitor<'de> for RegistryVisitor {
 	type Value = Registry;
 
 	fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
@@ -116,7 +116,8 @@ impl<'de> Visitor<'de> for RegistryVisitor {
 
 	fn visit_map<V>(self, mut map: V)  -> Result<Self::Value, V::Error>
 	where
-		V: MapAccess<'de>
+		V: MapAccess<'de>,
+
 	{
 		#[derive(Deserialize)]
 		#[serde(field_identifier, rename_all = "lowercase")]
@@ -140,16 +141,24 @@ impl<'de> Visitor<'de> for RegistryVisitor {
 				}
 			}
 		}
+		let types: serde_json::Value = types.ok_or_else(||de::Error::missing_field("types"))?;
+		// let strings: Interner<&'de str> = strings.ok_or_else(|| de::Error::missing_field("strings"))?;
+		let mut registry = Registry {
+			string_table: strings.ok_or_else(|| de::Error::missing_field("strings"))?,
+			type_table: Interner::new(),
+			// types: types.ok_or_else(|| de::Error::missing_field("types"))?,
+			types: BTreeMap::new(),
+		};
 
-		let strings: Interner<&'de str> = strings.ok_or_else(|| de::Error::missing_field("strings"))?;
-		let types: serde_json::Value = types.ok_or_else(|| de::Error::missing_field("types"))?;
-		println!("STRINGS: {:?}", strings);
-		println!("TYPES: {:?}", types);
+		// let types: serde_json::Value = types.ok_or_else(|| de::Error::missing_field("types"))?;
+		// println!("STRINGS: {:?}", strings);
+		// println!("TYPES: {:?}", types);
 		Ok(Registry::default())
+		// Deserialize::deserialize_in_place(self, &mut registry)
 	}
 }
 
-impl<'de> Deserialize<'de> for Registry {
+impl<'de: 'static> Deserialize<'de> for Registry {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where
 		D: Deserializer<'de>,
