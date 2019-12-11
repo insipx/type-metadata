@@ -31,7 +31,7 @@ use std::fmt;
 ///
 /// This can be used by self-referential types but
 /// can no longer be used to resolve instances.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct UntrackedSymbol<T> {
 	id: NonZeroU32,

@@ -21,7 +21,7 @@ use crate::{
 	IntoCompact, MetaType, Metadata, Registry,
 };
 use derive_more::From;
-use serde::Serialize;
+use serde::{Serialize, de::{self, Deserialize, Deserializer, Visitor}};
 
 /// Types implementing this trait can communicate their type structure.
 ///
@@ -122,11 +122,13 @@ impl TypeDefStruct {
 ///
 /// This can be a named field of a struct type or a struct variant.
 #[derive(PartialEq, Eq, Debug, Serialize)]
-#[serde(bound = "F::TypeId: Serialize")]
+#[serde(bound(serialize = "F::TypeId: Serialize"))]
 pub struct NamedField<F: Form = MetaForm> {
 	/// The name of the field.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	name: F::String,
 	/// The type of the field.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	#[serde(rename = "type")]
 	ty: F::TypeId,
 }
