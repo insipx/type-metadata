@@ -44,10 +44,10 @@ pub enum TypeDef<F: Form = MetaForm> {
 	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
 	Struct(TypeDefStruct<F>),
 	/// A tuple-struct with unnamed fields.
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	TupleStruct(TypeDefTupleStruct<F>),
 	/// A C-like enum with simple named variants.
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::String: Deserialize<'de>"))]
 	ClikeEnum(TypeDefClikeEnum<F>),
 	/// A Rust enum with different kinds of variants.
 	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
@@ -194,7 +194,7 @@ impl NamedField {
 pub struct TypeDefTupleStruct<F: Form = MetaForm> {
 	/// The unnamed fields.
 	#[serde(rename = "tuple_struct.types")]
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	fields: Vec<UnnamedField<F>>,
 }
 
@@ -236,7 +236,7 @@ impl TypeDefTupleStruct {
 pub struct UnnamedField<F: Form = MetaForm> {
 	/// The type of the unnamed field.
 	#[serde(rename = "type")]
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	ty: F::TypeId,
 }
 
@@ -293,7 +293,7 @@ impl UnnamedField {
 pub struct TypeDefClikeEnum<F: Form = MetaForm> {
 	/// The variants of the C-like enum.
 	#[serde(rename = "clike_enum.variants")]
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::String: Deserialize<'de>"))]
 	variants: Vec<ClikeEnumVariant<F>>,
 }
 
@@ -437,7 +437,7 @@ impl TypeDefEnum {
 #[serde(untagged)]
 pub enum EnumVariant<F: Form = MetaForm> {
 	/// A unit struct variant.
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::String: Deserialize<'de>"))]
 	Unit(EnumVariantUnit<F>),
 	/// A struct variant with named fields.
 	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
@@ -574,7 +574,7 @@ pub struct EnumVariantTupleStruct<F: Form = MetaForm> {
 	name: F::String,
 	/// The fields of the variant.
 	#[serde(rename = "tuple_struct_variant.types")]
-	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	fields: Vec<UnnamedField<F>>,
 }
 
