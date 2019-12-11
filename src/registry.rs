@@ -53,7 +53,7 @@ pub trait IntoCompact {
 /// The pair of associated type identifier and structure.
 ///
 /// This exists only as compactified version and is part of the registry.
-#[derive(Debug, PartialEq, Eq, Serialize)]
+#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TypeIdDef {
 	/// The identifier of the type.
 	id: TypeId<CompactForm>,
@@ -141,20 +141,16 @@ impl<'de: 'static> Visitor<'de> for RegistryVisitor {
 				}
 			}
 		}
-		let types: serde_json::Value = types.ok_or_else(||de::Error::missing_field("types"))?;
-		// let strings: Interner<&'de str> = strings.ok_or_else(|| de::Error::missing_field("strings"))?;
-		let mut registry = Registry {
+		// let types: Vec<TypeIdDef> = types.ok_or_else(|| de::Error::missing_field("strings"))?;
+		let types: serde_json::Value = types.ok_or_else(|| de::Error::missing_field("strings"))?;
+		println!("TYPES: {:#?}", types); let registry = Registry {
 			string_table: strings.ok_or_else(|| de::Error::missing_field("strings"))?,
 			type_table: Interner::new(),
-			// types: types.ok_or_else(|| de::Error::missing_field("types"))?,
-			types: BTreeMap::new(),
+			types: BTreeMap::new(), //types.ok_or_else(|| de::Error::missing_field("types"))?,
+			// types: BTreeMap::new(),
 		};
-
-		// let types: serde_json::Value = types.ok_or_else(|| de::Error::missing_field("types"))?;
-		// println!("STRINGS: {:?}", strings);
-		// println!("TYPES: {:?}", types);
+		println!("registry: {:#?}", registry);
 		Ok(Registry::default())
-		// Deserialize::deserialize_in_place(self, &mut registry)
 	}
 }
 
