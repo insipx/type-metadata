@@ -36,10 +36,11 @@ pub trait HasTypeId {
 /// The first segment represents the crate name in which the type has been defined.
 ///
 /// Rust prelude type may have an empty namespace definition.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize, Debug)]
 #[serde(transparent)]
 pub struct Namespace<F: Form = MetaForm> {
 	/// The segments of the namespace.
+	#[serde(bound(deserialize = "F::String: Deserialize<'de>"))]
 	segments: Vec<F::String>,
 }
 
@@ -104,7 +105,7 @@ impl Namespace {
 /// A type identifier.
 ///
 /// This uniquely identifies types and can be used to refer to type definitions.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, From, Debug, Serialize)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, From, Debug, Serialize, Deserialize)]
 #[serde(bound = "
 	F::TypeId: Serialize,
 	F::IndirectTypeId: Serialize
@@ -112,12 +113,16 @@ impl Namespace {
 #[serde(rename_all = "camelCase")]
 pub enum TypeId<F: Form = MetaForm> {
 	/// A custom type defined by the user.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
 	Custom(TypeIdCustom<F>),
 	/// A slice type with runtime known length.
+	#[serde(bound(deserialize = "F::IndirectTypeId: Deserialize<'de>"))]
 	Slice(TypeIdSlice<F>),
 	/// An array type with compile-time known lengh.
+	#[serde(bound(deserialize = "F::IndirectTypeId: Deserialize<'de>"))]
 	Array(TypeIdArray<F>),
 	/// A tuple type.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	Tuple(TypeIdTuple<F>),
 	/// A Rust primitive type.
 	Primitive(TypeIdPrimitive),
@@ -170,19 +175,22 @@ pub enum TypeIdPrimitive {
 }
 
 /// A type identifier for custom type definitions.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize, Debug)]
 #[serde(bound = "F::TypeId: Serialize")]
 pub struct TypeIdCustom<F: Form = MetaForm> {
 	/// The name of the custom type.
+	#[serde(bound(deserialize = "F::String: Deserialize<'de>"))]
 	name: F::String,
 	/// The namespace in which the custom type has been defined.
 	///
 	/// # Note
 	///
 	/// For Rust prelude types the root (empty) namespace is used.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>, F::String: Deserialize<'de>"))]
 	namespace: Namespace<F>,
 	/// The generic type parameters of the custom type in use.
 	#[serde(rename = "params")]
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	type_params: Vec<F::TypeId>,
 }
 
@@ -217,13 +225,14 @@ impl TypeIdCustom {
 }
 
 /// An array type identifier.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize, Debug)]
 #[serde(bound = "F::IndirectTypeId: Serialize")]
 pub struct TypeIdArray<F: Form = MetaForm> {
 	/// The length of the array type definition.
 	pub len: u16,
 	/// The element type of the array type definition.
 	#[serde(rename = "type")]
+	#[serde(bound(deserialize = "F::IndirectTypeId: Deserialize<'de>"))]
 	pub type_param: F::IndirectTypeId,
 }
 
@@ -246,11 +255,12 @@ impl TypeIdArray {
 }
 
 /// A type identifier to refer to tuple types.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize, Debug)]
 #[serde(bound = "F::TypeId: Serialize")]
 #[serde(transparent)]
 pub struct TypeIdTuple<F: Form = MetaForm> {
 	/// The types in the tuple type definition.
+	#[serde(bound(deserialize = "F::TypeId: Deserialize<'de>"))]
 	pub type_params: Vec<F::TypeId>,
 }
 
@@ -286,11 +296,12 @@ impl TypeIdTuple {
 }
 
 /// A type identifier to refer to slice type definitions.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize, Debug)]
 #[serde(bound = "F::IndirectTypeId: Serialize")]
 pub struct TypeIdSlice<F: Form = MetaForm> {
 	/// The element type of the slice type definition.
 	#[serde(rename = "type")]
+	#[serde(bound(deserialize = "F::IndirectTypeId: Deserialize<'de>"))]
 	type_param: F::IndirectTypeId,
 }
 
