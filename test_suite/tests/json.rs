@@ -20,14 +20,13 @@
 extern crate alloc;
 
 #[cfg(not(feature = "std"))]
-use alloc::{vec, vec::Vec, string::ToString, boxed::Box, string::String, collections::BTreeMap};
+use alloc::{boxed::Box, collections::BTreeMap, string::String, string::ToString, vec, vec::Vec};
 
 use assert_json_diff::assert_json_eq;
 use serde::{Serialize, Deserialize};
 use serde_json::json;
 use type_metadata::{
-	form::CompactForm, IntoCompact as _, Metadata, Registry, TypeDef, TypeId,
-	interner::UntrackedSymbol
+	form::CompactForm, interner::UntrackedSymbol, IntoCompact as _, Metadata, Registry, TypeDef, TypeId,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -516,4 +515,3 @@ fn test_registry() {
 fn string_to_static_str(s: String) -> &'static str {
 	Box::leak(s.into_boxed_str())
 }
-
