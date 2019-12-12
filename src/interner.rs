@@ -25,7 +25,6 @@
 
 use crate::tm_std::*;
 use serde::{Serialize, Deserialize, de::{Deserializer, Visitor, SeqAccess}};
-use std::fmt;
 
 /// A symbol that is not lifetime tracked.
 ///
@@ -37,6 +36,15 @@ pub struct UntrackedSymbol<T> {
 	id: NonZeroU32,
 	#[serde(skip)]
 	marker: PhantomData<fn() -> T>,
+}
+
+impl<T> From<usize> for UntrackedSymbol<T> {
+	fn from(id: usize) -> UntrackedSymbol<T> {
+		UntrackedSymbol {
+			id: NonZeroU32::new(id as u32).expect("Id must not be zero"),
+			marker: PhantomData
+		}
+	}
 }
 
 /// A symbol from an interner.
@@ -108,7 +116,7 @@ where
 {
 	type Value = Interner<T>;
 
-	fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+	fn expecting(&self, formatter: &mut Formatter) -> FmtResult {
 		formatter.write_str("sequence Interner")
 	}
 

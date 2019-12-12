@@ -39,7 +39,6 @@ use crate::{
 	TypeDef, TypeId,
 };
 use serde::{Serialize, Deserialize, de::{self, Deserializer, Visitor, MapAccess}};
-use std::fmt;
 
 /// Compacts the implementor using a registry.
 pub trait IntoCompact {
@@ -107,16 +106,16 @@ where
 
 struct RegistryVisitor;
 
-impl<'de: 'static> Visitor<'de> for RegistryVisitor {
+impl Visitor<'static> for RegistryVisitor {
 	type Value = Registry;
 
-	fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+	fn expecting(&self, formatter: &mut Formatter) -> FmtResult {
 		formatter.write_str("struct Registry")
 	}
 
 	fn visit_map<V>(self, mut map: V)  -> Result<Self::Value, V::Error>
 	where
-		V: MapAccess<'de>,
+		V: MapAccess<'static>,
 
 	{
 		#[derive(Deserialize)]
@@ -141,23 +140,29 @@ impl<'de: 'static> Visitor<'de> for RegistryVisitor {
 				}
 			}
 		}
-		// let types: Vec<TypeIdDef> = types.ok_or_else(|| de::Error::missing_field("strings"))?;
-		let types: serde_json::Value = types.ok_or_else(|| de::Error::missing_field("strings"))?;
-		println!("TYPES: {:#?}", types); let registry = Registry {
+
+		let types: Vec<TypeIdDef> = types.ok_or_else(|| de::Error::missing_field("strings"))?;
+		let types = types
+			.into_iter()
+			.enumerate()
+			.map(|(i, t)| (UntrackedSymbol::<AnyTypeId>::from(i + 1), t))
+			.collect::<BTreeMap<UntrackedSymbol<AnyTypeId>, TypeIdDef>>();
+
+		println!("TYPES: {:#?}", types);
+		let registry = Registry {
 			string_table: strings.ok_or_else(|| de::Error::missing_field("strings"))?,
 			type_table: Interner::new(),
-			types: BTreeMap::new(), //types.ok_or_else(|| de::Error::missing_field("types"))?,
-			// types: BTreeMap::new(),
+			types: types,
 		};
 		println!("registry: {:#?}", registry);
-		Ok(Registry::default())
+		Ok(registry)
 	}
 }
 
-impl<'de: 'static> Deserialize<'de> for Registry {
+impl Deserialize<'static> for Registry {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where
-		D: Deserializer<'de>,
+		D: Deserializer<'static>,
 	{
 		const FIELDS: &[&str] = &["strings", "types"];
 		deserializer.deserialize_struct("Registry", FIELDS, RegistryVisitor)

@@ -38,8 +38,8 @@ pub use self::core::{
 
 	clone::{Clone},
 	cmp::{Eq, PartialEq, Ordering},
-	convert::{From, Into},
-	fmt::{Debug, Error as FmtError, Formatter},
+	convert::{From, Into, TryFrom},
+	fmt::{Debug, Error as FmtError, Formatter, Result as FmtResult},
 	hash::{Hash, Hasher},
 	iter,
 };
