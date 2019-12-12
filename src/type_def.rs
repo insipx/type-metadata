@@ -21,7 +21,7 @@ use crate::{
 	IntoCompact, MetaType, Metadata, Registry,
 };
 use derive_more::From;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Types implementing this trait can communicate their type structure.
 ///

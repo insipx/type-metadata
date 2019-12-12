@@ -22,7 +22,7 @@ use crate::{
 	IntoCompact, MetaType, Metadata, Registry,
 };
 use derive_more::From;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Implementors return their meta type identifiers.
 pub trait HasTypeId {
