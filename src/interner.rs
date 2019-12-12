@@ -208,6 +208,13 @@ where
 		}
 		self.vec.get((sym.id.get() - 1) as usize)
 	}
+
+	/// Iterate over all symbols, disregarding the mapping from
+	/// compact identifier -> symbol
+	/// these elements are strictly ordered
+	pub fn symbols(&self) -> impl Iterator<Item = &T> {
+		self.vec.iter()
+	}
 }
 
 #[cfg(test)]
