@@ -148,13 +148,11 @@ impl Visitor<'static> for RegistryVisitor {
 			.map(|(i, t)| (UntrackedSymbol::<AnyTypeId>::from(i + 1), t))
 			.collect::<BTreeMap<UntrackedSymbol<AnyTypeId>, TypeIdDef>>();
 
-		println!("TYPES: {:#?}", types);
 		let registry = Registry {
 			string_table: strings.ok_or_else(|| de::Error::missing_field("strings"))?,
 			type_table: Interner::new(),
 			types: types,
 		};
-		println!("registry: {:#?}", registry);
 		Ok(registry)
 	}
 }
@@ -228,5 +226,20 @@ impl Registry {
 			);
 		}
 		symbol
+	}
+
+	/// returns an iterator over type definitions contained within the registry
+	pub fn definitions(&self) -> impl Iterator<Item = &TypeIdDef> {
+		self.types.values()
+	}
+
+	/// Returns an iterator over Key/Value pairs of TypeId and Id/Definitions
+	pub fn iter(&self) -> impl Iterator<Item = (&UntrackedSymbol<AnyTypeId>, &TypeIdDef)> {
+		self.types.iter()
+	}
+
+	/// Returns an iterator over all interned strings
+	pub fn strings(&self) -> impl Iterator<Item = &'static str> + '_ {
+		self.string_table.symbols().map(|x| *x)
 	}
 }
