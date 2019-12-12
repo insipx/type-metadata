@@ -156,7 +156,7 @@ impl Visitor<'static> for RegistryVisitor {
 		let registry = Registry {
 			string_table: strings.ok_or_else(|| de::Error::missing_field("strings"))?,
 			type_table: Interner::new(),
-			types: types,
+			types,
 		};
 		Ok(registry)
 	}
@@ -245,6 +245,6 @@ impl Registry {
 
 	/// Returns an iterator over all interned strings
 	pub fn strings(&self) -> impl Iterator<Item = &'static str> + '_ {
-		self.string_table.symbols().map(|x| *x)
+		self.string_table.symbols().copied()
 	}
 }
