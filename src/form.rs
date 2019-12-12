@@ -34,7 +34,7 @@
 
 use crate::tm_std::*;
 use crate::{interner::UntrackedSymbol, meta_type::MetaType};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Trait to control the internal structures of type identifiers and definitions.
 ///

@@ -38,7 +38,10 @@ use crate::{
 	meta_type::MetaType,
 	TypeDef, TypeId,
 };
-use serde::{Serialize, Deserialize, de::{self, Deserializer, Visitor, MapAccess}};
+use serde::{
+	de::{self, Deserializer, MapAccess, Visitor},
+	Deserialize, Serialize,
+};
 
 /// Compacts the implementor using a registry.
 pub trait IntoCompact {
@@ -113,14 +116,16 @@ impl Visitor<'static> for RegistryVisitor {
 		formatter.write_str("struct Registry")
 	}
 
-	fn visit_map<V>(self, mut map: V)  -> Result<Self::Value, V::Error>
+	fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
 	where
 		V: MapAccess<'static>,
-
 	{
 		#[derive(Deserialize)]
 		#[serde(field_identifier, rename_all = "lowercase")]
-		enum Field { Strings, Types }
+		enum Field {
+			Strings,
+			Types,
+		}
 
 		let mut strings = None;
 		let mut types = None;
@@ -128,13 +133,13 @@ impl Visitor<'static> for RegistryVisitor {
 			match key {
 				Field::Strings => {
 					if strings.is_some() {
-						return Err(de::Error::duplicate_field("strings"))
+						return Err(de::Error::duplicate_field("strings"));
 					}
 					strings = Some(map.next_value()?);
 				}
 				Field::Types => {
 					if types.is_some() {
-						return Err(de::Error::duplicate_field("types"))
+						return Err(de::Error::duplicate_field("types"));
 					}
 					types = Some(map.next_value()?);
 				}

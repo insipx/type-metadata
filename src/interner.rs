@@ -24,7 +24,10 @@
 //! and is later used for compact serialization within the registry.
 
 use crate::tm_std::*;
-use serde::{Serialize, Deserialize, de::{Deserializer, Visitor, SeqAccess}};
+use serde::{
+	de::{Deserializer, SeqAccess, Visitor},
+	Deserialize, Serialize,
+};
 
 /// A symbol that is not lifetime tracked.
 ///
@@ -42,7 +45,7 @@ impl<T> From<usize> for UntrackedSymbol<T> {
 	fn from(id: usize) -> UntrackedSymbol<T> {
 		UntrackedSymbol {
 			id: NonZeroU32::new(id as u32).expect("Id must not be zero"),
-			marker: PhantomData
+			marker: PhantomData,
 		}
 	}
 }
@@ -107,12 +110,12 @@ pub struct Interner<T> {
 }
 
 struct InternerVisitor<T> {
-	_marker: PhantomData<T>
+	_marker: PhantomData<T>,
 }
 
 impl<'de, T> Visitor<'de> for InternerVisitor<T>
 where
-	T: Ord + Deserialize<'de> + Copy
+	T: Ord + Deserialize<'de> + Copy,
 {
 	type Value = Interner<T>;
 
@@ -122,7 +125,7 @@ where
 
 	fn visit_seq<V>(self, mut seq: V) -> Result<Self::Value, V::Error>
 	where
-		V: SeqAccess<'de>
+		V: SeqAccess<'de>,
 	{
 		let mut vec = Vec::new();
 		let mut map = BTreeMap::new();
@@ -138,7 +141,7 @@ where
 
 impl<'de, T> Deserialize<'de> for Interner<T>
 where
-	T: Ord + Deserialize<'de> + Copy
+	T: Ord + Deserialize<'de> + Copy,
 {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where
