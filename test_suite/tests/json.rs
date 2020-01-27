@@ -23,7 +23,7 @@ extern crate alloc;
 use alloc::{boxed::Box, collections::BTreeMap, string::String, string::ToString, vec, vec::Vec};
 
 use assert_json_diff::assert_json_eq;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use type_metadata::{
 	form::CompactForm, interner::UntrackedSymbol, IntoCompact as _, Metadata, Registry, TypeDef, TypeId,
@@ -48,9 +48,8 @@ where
 		def: type_def,
 	};
 
-
 	let ser = serde_json::to_value(&id_def).unwrap();
-	assert_json_eq!(ser, expected_json,);
+	assert_json_eq!(ser.clone(), expected_json,);
 	let deser: TypeIdDef = serde_json::from_value(ser).unwrap();
 	assert_eq!(deser, id_def);
 }
@@ -494,12 +493,12 @@ fn test_registry() {
 	});
 
 	let serialized_registry = serde_json::to_value(&registry).unwrap();
-	assert_json_eq!(serialized_registry, expected_json,);
+	assert_json_eq!(serialized_registry.clone(), expected_json,);
 
 	let serialized_registry = serialized_registry.to_string();
 	let deserialized_registry: Registry = serde_json::from_str(string_to_static_str(serialized_registry)).unwrap();
-
-	// since type_table is not serialized, we just compare strings & types
+	
+    // since type_table is not serialized, we just compare strings & types
 	// to test if deserialization works
 
 	let ser_vec = registry.strings();
