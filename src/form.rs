@@ -34,12 +34,14 @@
 
 use crate::tm_std::*;
 use crate::{interner::UntrackedSymbol, meta_type::MetaType};
+#[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
 /// Trait to control the internal structures of type identifiers and definitions.
 ///
 /// This allows for type-level separation between free forms that can be instantiated
 /// out of the flux and compact forms that require some sort of interning data structures.
+#[cfg(feature = "std")]
 pub trait Form {
 	/// The string type.
 	type String: Serialize + PartialEq + Eq + PartialOrd + Ord + Clone + core::fmt::Debug;
@@ -53,11 +55,31 @@ pub trait Form {
 	type IndirectTypeId: PartialEq + Eq + PartialOrd + Ord + Clone + core::fmt::Debug;
 }
 
+/// Trait to control the internal structures of type identifiers and definitions.
+///
+/// This allows for type-level separation between free forms that can be instantiated
+/// out of the flux and compact forms that require some sort of interning data structures.
+#[cfg(not(feature = "std"))]
+pub trait Form {
+	/// The string type.
+	type String: PartialEq + Eq + PartialOrd + Ord + Clone + core::fmt::Debug;
+	/// The type identifier type.
+	type TypeId: PartialEq + Eq + PartialOrd + Ord + Clone + core::fmt::Debug;
+	/// A type identifier with indirection.
+	///
+	/// # Note
+	///
+	/// This is an optimization for the compact forms.
+	type IndirectTypeId: PartialEq + Eq + PartialOrd + Ord + Clone + core::fmt::Debug;
+}
+
+
 /// A meta meta-type.
 ///
 /// Allows to be converted into other forms such as compact form
 /// through the registry and `IntoCompact`.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Serialize, Deserialize, Debug)]
+#[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum MetaForm {}
 
 impl Form for MetaForm {
@@ -73,7 +95,8 @@ impl Form for MetaForm {
 /// This resolves some lifetime issues with self-referential structs (such as
 /// the registry itself) but can no longer be used to resolve to the original
 /// underlying data.
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Serialize, Deserialize, Debug)]
+#[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub enum CompactForm {}
 
 impl Form for CompactForm {

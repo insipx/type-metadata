@@ -24,6 +24,7 @@
 //! and is later used for compact serialization within the registry.
 
 use crate::tm_std::*;
+#[cfg(feature = "std")]
 use serde::{
 	de::{Deserializer, SeqAccess, Visitor},
 	Deserialize, Serialize,
@@ -33,11 +34,12 @@ use serde::{
 ///
 /// This can be used by self-referential types but
 /// can no longer be used to resolve instances.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
-#[serde(transparent)]
+#[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "std", serde(transparent))]
 pub struct UntrackedSymbol<T> {
 	id: NonZeroU32,
-	#[serde(skip)]
+	#[cfg_attr(feature = "std", serde(skip))]
 	marker: PhantomData<fn() -> T>,
 }
 
@@ -53,11 +55,11 @@ impl<T> From<usize> for UntrackedSymbol<T> {
 /// A symbol from an interner.
 ///
 /// Can be used to resolve to the associated instance.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize)]
-#[serde(transparent)]
+#[cfg_attr(feature = "std", derive(Serialize), serde(transparent))]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Symbol<'a, T> {
 	id: NonZeroU32,
-	#[serde(skip)]
+	#[cfg_attr(feature = "std", serde(skip))]
 	marker: PhantomData<fn() -> &'a T>,
 }
 
@@ -93,13 +95,13 @@ impl<T> Symbol<'_, T> {
 ///
 /// This is used in order to quite efficiently cache strings and type
 /// definitions uniquely identified by their associated type identifiers.
-#[derive(Debug, PartialEq, Eq, Serialize)]
-#[serde(transparent)]
+#[cfg_attr(feature = "std", derive(Serialize), serde(transparent))]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Interner<T> {
 	/// A mapping from the interned elements to their respective compact identifiers.
 	///
 	/// The idenfitiers can be used to retrieve information about the original element from the interner.
-	#[serde(skip)]
+	#[cfg_attr(feature = "std", serde(skip))]
 	map: BTreeMap<T, usize>,
 	/// The ordered sequence of cached elements.
 	///
@@ -113,6 +115,7 @@ struct InternerVisitor<T> {
 	_marker: PhantomData<T>,
 }
 
+#[cfg(feature = "std")]
 impl<'de, T> Visitor<'de> for InternerVisitor<T>
 where
 	T: Ord + Deserialize<'de> + Copy,
@@ -139,6 +142,7 @@ where
 	}
 }
 
+#[cfg(feature = "std")]
 impl<'de, T> Deserialize<'de> for Interner<T>
 where
 	T: Ord + Deserialize<'de> + Copy,

@@ -38,6 +38,7 @@ use crate::{
 	meta_type::MetaType,
 	TypeDef, TypeId,
 };
+#[cfg(feature = "std")]
 use serde::{
 	de::{self, Deserializer, MapAccess, Visitor},
 	Deserialize, Serialize,
@@ -55,7 +56,8 @@ pub trait IntoCompact {
 /// The pair of associated type identifier and structure.
 ///
 /// This exists only as compactified version and is part of the registry.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
 pub struct TypeIdDef {
 	/// The identifier of the type.
 	id: TypeId<CompactForm>,
@@ -76,26 +78,28 @@ pub struct TypeIdDef {
 ///
 /// A type can be a sub-type of itself. In this case the registry has a builtin
 /// mechanism to stop recursion before going into an infinite loop.
-#[derive(Debug, PartialEq, Eq, Serialize)]
+#[cfg_attr(feature = "std", derive(Serialize))]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Registry {
 	/// The cache for already registered strings.
-	#[serde(rename = "strings")]
+	#[cfg_attr(feature = "std", serde(rename = "strings"))]
 	string_table: Interner<&'static str>,
 	/// The cache for already registered types.
 	///
 	/// This is just an accessor to the actual database
 	/// for all types found in the `types` field.
-	#[serde(skip)]
+	#[cfg_attr(feature = "std", serde(skip))]
 	type_table: Interner<AnyTypeId>,
 	/// The database where registered types actually reside.
 	///
 	/// This is going to be serialized upon serialization.
-	#[serde(serialize_with = "serialize_registry_types")]
+	#[cfg_attr(feature = "std", serde(serialize_with = "serialize_registry_types"))]
 	types: BTreeMap<UntrackedSymbol<core::any::TypeId>, TypeIdDef>,
 }
 
 /// Serializes the types of the registry by removing their unique IDs
 /// and instead serialize them in order of their removed unique ID.
+#[cfg(feature = "std")]
 fn serialize_registry_types<S>(
 	types: &BTreeMap<UntrackedSymbol<core::any::TypeId>, TypeIdDef>,
 	serializer: S,
@@ -107,8 +111,10 @@ where
 	types.serialize(serializer)
 }
 
+#[cfg(feature = "std")]
 struct RegistryVisitor;
 
+#[cfg(feature = "std")]
 impl Visitor<'static> for RegistryVisitor {
 	type Value = Registry;
 
@@ -162,6 +168,7 @@ impl Visitor<'static> for RegistryVisitor {
 	}
 }
 
+#[cfg(feature = "std")]
 impl Deserialize<'static> for Registry {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
 	where
