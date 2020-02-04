@@ -46,8 +46,9 @@ pub use self::core::{
 };
 
 mod alloc {
+	extern crate alloc;
 	#[cfg(not(feature = "std"))]
-	pub use ::alloc::*;
+	pub use alloc::*;
 
 	#[cfg(feature = "std")]
 	pub use std::*;
