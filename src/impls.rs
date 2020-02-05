@@ -115,6 +115,22 @@ impl_metadata_for_tuple!(A, B, C, D, E, F, G);
 impl_metadata_for_tuple!(A, B, C, D, E, F, G, H);
 impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I);
 impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y);
+impl_metadata_for_tuple!(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z);
 
 impl<T> HasTypeId for Vec<T>
 where
